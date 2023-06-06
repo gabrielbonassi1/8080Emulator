@@ -8,7 +8,8 @@ returns the number of bytes of the op
 /*o codebuffer segura o código em hex*/
 
 #include <stdio.h>
-#include "8080Disassembler.h"
+#include <stdlib.h>
+#include "disassembler.h"
 
 int Disassemble8080(unsigned char *codebuffer, int pc){
     unsigned char *code = &codebuffer[pc];
@@ -298,4 +299,35 @@ int Disassemble8080(unsigned char *codebuffer, int pc){
 	case 0xfe: printf("CPI    #$%02x",code[1]); opbytes = 2; break; /*Compare immediate with A*/
 	case 0xff: printf("RST    7"); break;
     }
+	printf("\n");
+	return opbytes;
 }
+
+int main ()    
+{    
+	char* filename = "invaders.h";
+    FILE *f= fopen(filename, "rb");    
+    if (f==NULL)    
+    {    
+        printf("error: Couldn't open %s\n", filename);    
+        exit(1);    
+    }    
+
+    //Get the file size and read it into a memory buffer    
+    fseek(f, 0L, SEEK_END);    
+    int fsize = ftell(f);    
+    fseek(f, 0L, SEEK_SET);    
+
+    unsigned char *buffer=malloc(fsize);    
+
+    fread(buffer, fsize, 1, f);    
+    fclose(f);    
+
+    int pc = 0;    
+
+    while (pc < fsize)    
+    {    
+        pc += Disassemble8080(buffer, pc);    
+    }    
+    return 0;    
+}  
